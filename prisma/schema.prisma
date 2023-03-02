@@ -1,0 +1,205 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String               @id @default(auto()) @map("_id") @db.ObjectId
+  firstname          String
+  lastname           String
+  workNumber         String
+  emailAddress       String               @unique
+  password           String
+  verified           Boolean              @default(false)
+  pro                Boolean              @default(false)
+  experience         String?
+  personalBio        String?
+  profilePic         String[]
+  phoneNumbers       PhoneNumbers[]
+  emailAdresses      EmailAdresses[]
+  documentLinks      DocumentLinks[]
+  StateLicenses      StateLicenses[]
+  PricingInformation PricingInformation[]
+  Insurances         Insurances[]
+  BackgroundChecks   BackgroundChecks[]
+  SpokenLanguages    SpokenLanguages[]
+  Websites           Websites[]
+  CustomFields       CustomFields[]
+  token              tokens[]
+  social             Social?
+  nameCompany        NameCompany?
+  billing            Billing?
+  capabilities       Capabilities?
+  availability       Availability?
+}
+
+type NameCompany {
+  companyName String?
+  inBusiness  DateTime?
+}
+
+type Billing {
+  address1 String
+  address2 String?
+  city     String
+  state    String
+  zip      String
+}
+
+type Capabilities {
+  csa             Boolean @default(false)
+  email           Boolean @default(false)
+  abstractor      Boolean @default(false)
+  hour24Service   Boolean @default(false)
+  hospitalSigning Boolean @default(false)
+  attorney        Boolean @default(false)
+  internet        Boolean @default(false)
+  mobileHotspot   Boolean @default(false)
+  fingerprinting  Boolean @default(false)
+  jailSignings    Boolean @default(false)
+  fax             Boolean @default(false)
+  laserPrinter    Boolean @default(false)
+  eSign           Boolean @default(false)
+  weddings        Boolean @default(false)
+  otherInfo       String?
+}
+
+type Availability {
+  mon       Boolean @default(false)
+  tue       Boolean @default(false)
+  wed       Boolean @default(false)
+  thu       Boolean @default(false)
+  fri       Boolean @default(false)
+  sat       Boolean @default(false)
+  sun       Boolean @default(false)
+  am        Boolean @default(false)
+  pm        Boolean @default(false)
+  otherInfo String?
+}
+
+type Social {
+  facebook String?
+  linkedin String?
+  twitter  String?
+}
+
+model PhoneNumbers {
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
+  type      PhoneNumbersType
+  userId    String           @db.ObjectId
+  user      User             @relation(fields: [userId], references: [id])
+  number    String
+  extension String?
+  prefPhone Boolean          @default(false)
+  text      Boolean          @default(false)
+}
+
+model EmailAdresses {
+  address String             @id @map("_id")
+  type    EmailAdressesTypes
+  userId  String             @db.ObjectId
+  user    User               @relation(fields: [userId], references: [id])
+  pref    Boolean            @default(false)
+}
+
+model DocumentLinks {
+  url    String            @id @map("_id")
+  title  String
+  type   DocumentLinksType
+  userId String            @db.ObjectId
+  user   User              @relation(fields: [userId], references: [id])
+}
+
+model StateLicenses {
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId           String   @db.ObjectId
+  user             User     @relation(fields: [userId], references: [id])
+  state            String
+  commissionNumber String
+  expiration       DateTime
+}
+
+model PricingInformation {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String @db.ObjectId
+  user        User   @relation(fields: [userId], references: [id])
+  description String
+  amount      Float
+}
+
+model Insurances {
+  id            String @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String @db.ObjectId
+  user          User   @relation(fields: [userId], references: [id])
+  carrierAmount String
+}
+
+model BackgroundChecks {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId         String   @db.ObjectId
+  user           User     @relation(fields: [userId], references: [id])
+  provider       String
+  conducted      DateTime
+  expirationDate DateTime
+  refNumber      String
+  otherInfo      String?
+}
+
+model SpokenLanguages {
+  language String @id @map("_id")
+  userId   String @db.ObjectId
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model Websites {
+  url    String @id @map("_id")
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model CustomFields {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String @db.ObjectId
+  user        User   @relation(fields: [userId], references: [id])
+  description String
+}
+
+model tokens {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum DocumentLinksType {
+  BackgroundCheck
+  bond
+  commission
+  EO
+  insurance
+  StateLicense
+  w9
+  other
+}
+
+enum PhoneNumbersType {
+  work
+  home
+  mobile
+  fax
+  alternate
+}
+
+enum EmailAdressesTypes {
+  work
+  personal
+  mobile
+  alternate
+}
